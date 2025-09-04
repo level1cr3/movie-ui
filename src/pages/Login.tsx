@@ -39,8 +39,24 @@ const Login = () => {
   });
 
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    console.log(data);
+    try {
+      const response = await fetch("https://localhost:7145/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log(result);
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        form.setError("root", { message: error.message });
+      }
+    }
   };
 
   return (
