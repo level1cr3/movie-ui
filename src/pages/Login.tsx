@@ -21,6 +21,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Link } from "react-router-dom";
 
 const formSchema = z.object({
   email: z.email("Invalid email address"),
@@ -62,7 +63,7 @@ const Login = () => {
   return (
     <>
       <div className="flex min-h-screen flex-col items-center justify-center bg-gray-100 p-4">
-        <Card className="w-full max-w-sm">
+        <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle>Login to your account</CardTitle>
             <CardDescription>
@@ -70,14 +71,14 @@ const Login = () => {
             </CardDescription>
             <CardAction>
               <Button variant="link" size="sm">
-                Sign up
+                <Link to="/register">Register</Link>
               </Button>
             </CardAction>
           </CardHeader>
           <CardContent>
             <Form {...form}>
               <form
-                id="login-form"
+                id="loginForm"
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="space-y-8"
               >
@@ -128,7 +129,7 @@ const Login = () => {
           </CardContent>
           <CardFooter className="fex justify-center">
             <Button
-              form="login-form"
+              form="loginForm"
               type="submit"
               disabled={form.formState.isSubmitting}
             >
@@ -142,3 +143,9 @@ const Login = () => {
 };
 
 export default Login;
+
+/* 
+# Do you have to give defaultValues?
+> Not always required — if your form is strictly for new data entry (like login, registration), React Hook Form can work without defaults.
+> But recommended — because React Hook Form keeps all inputs controlled. Without defaultValues, inputs may start as undefined, which can cause warnings or unexpected behavior.
+*/
