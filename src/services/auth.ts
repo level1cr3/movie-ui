@@ -1,6 +1,6 @@
 import api from "./apiClient";
 
-type RegisterRequest = {
+export type RegisterRequest = {
   firstName: string;
   lastName?: string;
   email: string;

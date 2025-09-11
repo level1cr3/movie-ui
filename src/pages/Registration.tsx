@@ -24,10 +24,22 @@ import {
 } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { useRegister } from "@/hooks/auth/useRegister";
+import type { RegisterRequest } from "@/services/auth";
+import axios from "axios";
+import type { ApiError } from "@/types/api";
+import { toast } from "sonner";
+import { applyServerError } from "@/lib/applyServerErrors";
+import { useState } from "react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { CircleAlertIcon, XIcon } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 type FormFields = z.infer<typeof registrationSchema>;
 
 const Registration = () => {
+  const [isShowPassword, setShowPassword] = useState(false);
+  const [isSubmittedSuccessfully, setSubmittedSuccessfully] = useState(false);
   const form = useForm<FormFields>({
     defaultValues: {
       firstName: "",
@@ -42,16 +54,50 @@ const Registration = () => {
   const { mutateAsync: registerAsync, isPending } = useRegister();
 
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
+    const request: RegisterRequest = {
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      password: data.password,
+    }; // never pass UI-specific fields (like confirmPassword, acceptTerms, captchaToken, etc.) in your request payload.
+
     try {
-      await registerAsync(data); // only returning 200 status on success no data.
-      alert("user created");
+      await registerAsync(request); // only returning 200 status on success no data.
+      toast.success("user created");
+      setSubmittedSuccessfully(true);
+      form.reset();
     } catch (error) {
-      // bind with from error and show toast errors
+      toast.error("Registration failed!");
+      if (axios.isAxiosError<ApiError>(error)) {
+        if (error.response?.data.errors) {
+          applyServerError(form.setError, error.response.data.errors);
+        }
+      }
     }
   };
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gray-100 p-4">
+      {isSubmittedSuccessfully && (
+        <Alert variant="info" className="w-full max-w-md mb-3">
+          <CircleAlertIcon />
+          <AlertTitle>Verify your email to activate your account</AlertTitle>
+          <AlertDescription>
+            We&apos;ve sent a confirmation link to your inbox. Check your email
+            to complete the registration.
+          </AlertDescription>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setSubmittedSuccessfully(false)}
+            className="absolute right-0"
+          >
+            <XIcon />
+            <span className="sr-only">Close</span>
+          </Button>
+        </Alert>
+      )}
+
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Register</CardTitle>
@@ -154,8 +200,27 @@ const Registration = () => {
               />
             </form>
           </Form>
+          <div className="flex mt-5">
+            <Checkbox
+              id="showPassword"
+              className="mr-2"
+              onCheckedChange={() => setShowPassword(!isShowPassword)}
+            />
+            <Label htmlFor="showPassword" className="cursor-pointer">
+              Show Password
+            </Label>
+          </div>
         </CardContent>
-        <CardFooter className="flex justify-center">
+        <CardFooter className="flex flex-col justify-center">
+          {form.formState.errors.root?.types && (
+            <ul className="list-disc text-red-600 mb-3 space-y-1">
+              {Object.values(form.formState.errors.root.types).map(
+                (msg, idx) => (
+                  <li key={idx}>{msg}</li>
+                )
+              )}
+            </ul>
+          )}
           <Button
             form="registrationForm"
             type="submit"
