@@ -171,7 +171,7 @@ const Registration = () => {
                     <FormLabel>Password</FormLabel>
                     <FormControl>
                       <Input
-                        type="password"
+                        type={isShowPassword ? "text" : "password"}
                         placeholder="Enter your password"
                         {...field}
                       />
@@ -189,7 +189,7 @@ const Registration = () => {
                     <FormLabel>Confirm Password</FormLabel>
                     <FormControl>
                       <Input
-                        type="password"
+                        type={isShowPassword ? "text" : "password"}
                         placeholder="Confirm your password"
                         {...field}
                       />
