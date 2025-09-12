@@ -1,15 +1,14 @@
 import { useVerifyEmail } from "@/hooks/auth/useVerifyEmail";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 
 const VerifyEmail = () => {
-  const [isEmailVerified, setIsEmailVerified] = useState(false);
   const [searchParams] = useSearchParams();
   const userId = searchParams.get("userId");
   const token = searchParams.get("token");
   const isValidParams = userId && token;
-  const { mutate: verifyEmail, isPending } = useVerifyEmail();
+  const { mutate: verifyEmail, isPending, isSuccess } = useVerifyEmail();
 
   useEffect(() => {
     if (!isValidParams) return;
@@ -18,11 +17,9 @@ const VerifyEmail = () => {
     verifyEmail(request, {
       onSuccess: () => {
         toast.success("Email verification successful");
-        setIsEmailVerified(true);
       },
       onError: (error) => {
         toast.error("Email verification failed");
-        setIsEmailVerified(false);
         const errMessages = error.response?.data.errors.map(
           (err) => err.message
         );
@@ -44,7 +41,7 @@ const VerifyEmail = () => {
     return <p>Verifying your email...</p>;
   }
 
-  if (isEmailVerified) {
+  if (isSuccess) {
     return <p>Email verified successfully </p>;
   }
 

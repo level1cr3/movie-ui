@@ -26,8 +26,9 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
-    // ...
+    },
+
+    "types": ["sonner"]
   },
-  "include": ["src"]
+  "include": ["src", "src/types"]
 }
