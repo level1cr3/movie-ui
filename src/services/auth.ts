@@ -1,14 +1,17 @@
 import api from "./apiClient";
-
-export type RegisterRequest = {
-  firstName: string;
-  lastName?: string;
-  email: string;
-  password: string;
-};
+import type {
+  RegisterRequest,
+  VerifyEmailRequest,
+} from "@/types/api/authTypes";
 
 export const register = async (newUser: RegisterRequest): Promise<void> => {
-  await api.post("/api/auth/register", newUser);
+  await api.post("/auth/register", newUser);
+};
+
+export const verifyEmail = async (
+  verifyEmail: VerifyEmailRequest
+): Promise<void> => {
+  await api.post("/auth/confirm-email", verifyEmail);
 };
 
 /*

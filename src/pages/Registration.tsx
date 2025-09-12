@@ -24,9 +24,9 @@ import {
 } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { useRegister } from "@/hooks/auth/useRegister";
-import type { RegisterRequest } from "@/services/auth";
+import type { RegisterRequest } from "@/types/api/authTypes";
 import axios from "axios";
-import type { ApiError } from "@/types/api";
+import type { ApiError } from "@/types/api/commonTypes";
 import { toast } from "sonner";
 import { applyServerError } from "@/lib/applyServerErrors";
 import { useState } from "react";
