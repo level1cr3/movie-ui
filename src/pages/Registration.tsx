@@ -242,3 +242,8 @@ const Registration = () => {
 };
 
 export default Registration;
+
+/*
+Why not using isSuccess here.
+For your Registration page, your custom isSubmittedSuccessfully state is the better choice, because you want the alert dismissible.
+*/
