@@ -31,7 +31,7 @@ import { toast } from "sonner";
 import { applyServerError } from "@/lib/applyServerErrors";
 import { useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { CircleAlertIcon, XIcon } from "lucide-react";
+import { CircleAlertIcon, LoaderCircleIcon, XIcon } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import FocusedPageContainer from "@/components/common/FocusedPageContainer";
@@ -228,8 +228,8 @@ const Registration = () => {
             disabled={form.formState.isSubmitting}
           >
             {form.formState.isSubmitting || isPending ? (
-              <div className="flex items-center">
-                <div className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin mr-1"></div>
+              <div>
+                <LoaderCircleIcon className="animate-spin" />
                 Submitting...
               </div>
             ) : (
