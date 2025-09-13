@@ -34,6 +34,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CircleAlertIcon, XIcon } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import FocusedPageContainer from "@/components/common/FocusedPageContainer";
 
 type FormFields = z.infer<typeof registrationSchema>;
 
@@ -77,9 +78,9 @@ const Registration = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-100 p-4">
+    <FocusedPageContainer>
       {isSubmittedSuccessfully && (
-        <Alert variant="info" className="w-full max-w-md mb-3">
+        <Alert variant="info">
           <CircleAlertIcon />
           <AlertTitle>Verify your email to activate your account</AlertTitle>
           <AlertDescription>
@@ -98,7 +99,7 @@ const Registration = () => {
         </Alert>
       )}
 
-      <Card className="w-full max-w-md">
+      <Card>
         <CardHeader>
           <CardTitle>Register</CardTitle>
           <CardDescription>
@@ -237,7 +238,7 @@ const Registration = () => {
           </Button>
         </CardFooter>
       </Card>
-    </div>
+    </FocusedPageContainer>
   );
 };
 

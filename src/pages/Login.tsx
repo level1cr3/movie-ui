@@ -22,6 +22,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Link } from "react-router-dom";
+import FocusedPageContainer from "@/components/common/FocusedPageContainer";
 
 const formSchema = z.object({
   email: z.email("Invalid email address"),
@@ -62,7 +63,7 @@ const Login = () => {
 
   return (
     <>
-      <div className="flex min-h-screen flex-col items-center justify-center bg-gray-100 p-4">
+      <FocusedPageContainer>
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle>Login to your account</CardTitle>
@@ -137,7 +138,7 @@ const Login = () => {
             </Button>
           </CardFooter>
         </Card>
-      </div>
+      </FocusedPageContainer>
     </>
   );
 };
