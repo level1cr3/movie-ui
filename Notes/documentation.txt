@@ -1,0 +1,530 @@
+Perfect 👍 — setting up a **consistent naming convention** early is one of those enterprise-y practices that saves a lot of mental load later.
+
+Here’s a pragmatic convention you can use in your project:
+
+---
+
+## 🔹 1. **Layouts** (route-level, wrap whole sections)
+
+* **Suffix**: `Layout`
+* **Usage**: Used directly in your router config.
+* **Examples**:
+
+  * `PublicLayout` → has navbar & footer.
+  * `DashboardLayout` → sidebar + topbar.
+  * `AdminLayout` → restricted admin routes.
+
+👉 These should always be tied to **routing structure**.
+
+---
+
+## 🔹 2. **Containers** (UI-level wrappers for consistent styling/behavior)
+
+* **Suffix**: `Container`
+* **Usage**: Smaller than a layout, used inside a layout to standardize content presentation.
+* **Examples**:
+
+  * `PageContainer` → generic wrapper for consistent padding/margins.
+  * `FocusedPageContainer` (your auth/verify/forgot-password type).
+  * `CardContainer` → standardizes card padding/border.
+
+👉 These are **reusable building blocks** across pages.
+
+---
+
+## 🔹 3. **Sections** (page sub-areas with semantic meaning)
+
+* **Suffix**: `Section`
+* **Usage**: Used inside a page to group content semantically.
+* **Examples**:
+
+  * `HeroSection`
+  * `FeaturesSection`
+  * `PricingSection`
+  * `FooterSection`
+
+👉 These communicate *content meaning* rather than layout mechanics.
+
+---
+
+## 🔹 4. **Components** (atomic UI building blocks)
+
+* **No suffix required**, but if needed: `Card`, `Form`, `Button`, etc.
+* **Examples**:
+
+  * `LoginForm`
+  * `RegisterForm`
+  * `UserCard`
+  * `ProfileMenu`
+
+---
+
+### 🚦 How this applies to your project
+
+* Route-level wrappers: `PublicLayout`, later maybe `DashboardLayout`.
+* Single-content centered pages: ✅ `FocusedPageContainer`.
+* Marketing/landing sections: `HeroSection`, `FeaturesSection`.
+* UI building blocks: `LoginForm`, `Alert`, `ResendVerificationModal`.
+
+This way, anyone reading your code can immediately guess:
+
+* `Layout` = router-level
+* `Container` = styling/layout wrapper
+* `Section` = semantic part of a page
+* `Component` = UI block
+
+---
+
+👉 Do you want me to also propose a **folder structure** (e.g. `/layouts`, `/containers`, `/sections`, `/components`) so this naming convention has a natural home in your codebase?
+
+
+Nice 🔥 — folder structure + naming convention is where things click into place and keep a project maintainable at scale.
+Here’s a **pragmatic structure** that fits what you’re building (React + shadcn + auth flows + public pages):
+
+---
+
+## 📂 Suggested folder structure
+
+```
+src/
+  components/          # Reusable UI building blocks
+    ui/                # shadcn or other generic UI (Button, Input, Alert...)
+    forms/             # Reusable forms (LoginForm, RegisterForm...)
+    modals/            # Dialogs/Modals (ResendVerificationModal...)
+    cards/             # Small card-style components (UserCard, AuthCard...)
+
+  containers/          # Page-level reusable wrappers
+    PageContainer.tsx
+    FocusedPageContainer.tsx
+
+  layouts/             # Route-level layouts
+    PublicLayout.tsx
+    DashboardLayout.tsx
+    AdminLayout.tsx
+
+  sections/            # Semantic chunks of landing/marketing pages
+    HeroSection.tsx
+    FeaturesSection.tsx
+    PricingSection.tsx
+
+  pages/               # Route-level pages (usually map 1:1 with router)
+    Home.tsx
+    Login.tsx
+    Register.tsx
+    VerifyEmail.tsx
+    ForgotPassword.tsx
+    ResetPassword.tsx
+
+  router/              # Routing configuration
+    index.tsx          # your createBrowserRouter setup
+```
+
+---
+
+## 🔹 Why this works
+
+* **components/** = smallest building blocks (atomic UI).
+* **containers/** = styling/behavior wrappers for full-page content.
+* **layouts/** = router-level wrappers (navbar/footer, sidebar, etc.).
+* **sections/** = semantic, content-driven chunks of a page.
+* **pages/** = actual route entry points (thin, just orchestrate containers/components).
+* **router/** = keeps routing logic separate and tidy.
+
+---
+
+### ✅ Example usage flow
+
+* `/login` route loads `Login.tsx` from `pages/`
+* Inside `Login.tsx`, you wrap the `LoginForm` inside a `FocusedPageContainer`
+* If you need a resend button → it triggers `ResendVerificationModal` from `components/modals/`
+* All of this sits under `PublicLayout` from `layouts/`
+
+---
+
+👉 Would you like me to also show you how to **keep your forms (LoginForm, RegisterForm, etc.) thin and reusable**, so they don’t get bloated with API calls/toasts but still integrate cleanly with React Query?
+
+
+Perfect 👌 this is a really common pain point — forms often end up bloated with state, validation, API calls, toasts, etc.
+Enterprise apps solve this by splitting **form UI** from **form logic**.
+
+Here’s how you can structure it with your setup (React + React Query + shadcn UI).
+
+---
+
+## 🔹 Separation of Concerns
+
+1. **Form component** (UI-only) → lives in `components/forms/`
+
+   * Knows about inputs, validation (React Hook Form), error messages.
+   * Accepts `onSubmit` as a prop.
+   * Doesn’t know about API calls or React Query.
+
+2. **Page (or container)** → lives in `pages/`
+
+   * Imports the form.
+   * Wires it up with `useMutation` from React Query.
+   * Handles toast notifications and redirects.
+
+---
+
+## 🔹 Example
+
+### `components/forms/LoginForm.tsx`
+
+```tsx
+import { useForm } from "react-hook-form";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
+export type LoginFormValues = {
+  email: string;
+  password: string;
+};
+
+type Props = {
+  onSubmit: (data: LoginFormValues) => void;
+  isLoading?: boolean;
+};
+
+export function LoginForm({ onSubmit, isLoading }: Props) {
+  const { register, handleSubmit } = useForm<LoginFormValues>();
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <Input {...register("email")} placeholder="Email" type="email" required />
+      <Input {...register("password")} placeholder="Password" type="password" required />
+
+      <Button type="submit" disabled={isLoading} className="w-full">
+        {isLoading ? "Logging in..." : "Login"}
+      </Button>
+    </form>
+  );
+}
+```
+
+👉 This form **only cares about rendering fields and calling `onSubmit`**.
+
+---
+
+### `pages/Login.tsx`
+
+```tsx
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { LoginForm, LoginFormValues } from "@/components/forms/LoginForm";
+import { FocusedPageContainer } from "@/containers/FocusedPageContainer";
+import { api } from "@/lib/api"; // your axios/fetch wrapper
+
+export default function Login() {
+  const mutation = useMutation({
+    mutationFn: (data: LoginFormValues) => api.post("/auth/login", data),
+    onSuccess: () => {
+      toast.success("Logged in successfully!");
+      // redirect or update auth state
+    },
+    onError: () => {
+      toast.error("Invalid credentials, please try again.");
+    },
+  });
+
+  return (
+    <FocusedPageContainer>
+      <LoginForm
+        onSubmit={(data) => mutation.mutate(data)}
+        isLoading={mutation.isPending}
+      />
+    </FocusedPageContainer>
+  );
+}
+```
+
+👉 The **page owns the API logic + toasts**, while the form is a **dumb, reusable component**.
+
+---
+
+## 🔹 Benefits
+
+* ✅ Forms are reusable (e.g., you could drop `LoginForm` into a modal if you wanted).
+* ✅ Pages stay clean — they just orchestrate form + API.
+* ✅ Easy to test — form can be tested in isolation with mock `onSubmit`.
+* ✅ Keeps enterprise apps scalable (you won’t have 1,000-line page files).
+
+---
+
+👉 Do you want me to also show you how to **reuse this pattern for ForgotPassword, Register, ResetPassword, etc.**, without duplicating a ton of boilerplate?
+
+
+Awesome 🚀 this is where the **pattern really shines** — you can build all your auth flows (Login, Register, ForgotPassword, ResetPassword, VerifyEmail, etc.) consistently without duplication.
+
+---
+
+## 🔹 Step 1. Define a **generic form pattern**
+
+All forms go in `components/forms/` and follow the same structure:
+
+* `FormNameForm.tsx` (UI-only)
+* Accepts `onSubmit` + `isLoading` props
+* Uses **React Hook Form** for validation
+* Has no API logic inside
+
+---
+
+## 🔹 Step 2. Examples
+
+### `components/forms/RegisterForm.tsx`
+
+```tsx
+import { useForm } from "react-hook-form";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
+export type RegisterFormValues = {
+  email: string;
+  password: string;
+  confirmPassword: string;
+};
+
+type Props = {
+  onSubmit: (data: RegisterFormValues) => void;
+  isLoading?: boolean;
+};
+
+export function RegisterForm({ onSubmit, isLoading }: Props) {
+  const { register, handleSubmit } = useForm<RegisterFormValues>();
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <Input {...register("email")} placeholder="Email" type="email" required />
+      <Input {...register("password")} placeholder="Password" type="password" required />
+      <Input
+        {...register("confirmPassword")}
+        placeholder="Confirm Password"
+        type="password"
+        required
+      />
+
+      <Button type="submit" disabled={isLoading} className="w-full">
+        {isLoading ? "Registering..." : "Register"}
+      </Button>
+    </form>
+  );
+}
+```
+
+---
+
+### `components/forms/ForgotPasswordForm.tsx`
+
+```tsx
+import { useForm } from "react-hook-form";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
+export type ForgotPasswordFormValues = {
+  email: string;
+};
+
+type Props = {
+  onSubmit: (data: ForgotPasswordFormValues) => void;
+  isLoading?: boolean;
+};
+
+export function ForgotPasswordForm({ onSubmit, isLoading }: Props) {
+  const { register, handleSubmit } = useForm<ForgotPasswordFormValues>();
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <Input {...register("email")} placeholder="Email" type="email" required />
+
+      <Button type="submit" disabled={isLoading} className="w-full">
+        {isLoading ? "Sending reset link..." : "Send Reset Link"}
+      </Button>
+    </form>
+  );
+}
+```
+
+---
+
+### `components/forms/ResetPasswordForm.tsx`
+
+```tsx
+import { useForm } from "react-hook-form";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
+export type ResetPasswordFormValues = {
+  password: string;
+  confirmPassword: string;
+};
+
+type Props = {
+  onSubmit: (data: ResetPasswordFormValues) => void;
+  isLoading?: boolean;
+};
+
+export function ResetPasswordForm({ onSubmit, isLoading }: Props) {
+  const { register, handleSubmit } = useForm<ResetPasswordFormValues>();
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <Input {...register("password")} placeholder="New Password" type="password" required />
+      <Input
+        {...register("confirmPassword")}
+        placeholder="Confirm Password"
+        type="password"
+        required
+      />
+
+      <Button type="submit" disabled={isLoading} className="w-full">
+        {isLoading ? "Resetting..." : "Reset Password"}
+      </Button>
+    </form>
+  );
+}
+```
+
+---
+
+## 🔹 Step 3. Use them in Pages with React Query
+
+Example: `pages/Register.tsx`
+
+```tsx
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { RegisterForm, RegisterFormValues } from "@/components/forms/RegisterForm";
+import { FocusedPageContainer } from "@/containers/FocusedPageContainer";
+import { api } from "@/lib/api";
+
+export default function Register() {
+  const mutation = useMutation({
+    mutationFn: (data: RegisterFormValues) => api.post("/auth/register", data),
+    onSuccess: () => toast.success("Account created! Please verify your email."),
+    onError: () => toast.error("Registration failed, try again."),
+  });
+
+  return (
+    <FocusedPageContainer>
+      <RegisterForm
+        onSubmit={(data) => mutation.mutate(data)}
+        isLoading={mutation.isPending}
+      />
+    </FocusedPageContainer>
+  );
+}
+```
+
+👉 Same exact pattern applies to `ForgotPassword`, `ResetPassword`, etc.
+Each **page** owns the `useMutation` + toast handling, while forms are dumb and reusable.
+
+---
+
+## 🔹 Step 4. Reusability in Modals
+
+Because forms don’t know about APIs, you can also drop them into modals:
+
+```tsx
+<Dialog>
+  <DialogTrigger>Open Reset Password</DialogTrigger>
+  <DialogContent>
+    <ResetPasswordForm onSubmit={handleReset} isLoading={isResetting} />
+  </DialogContent>
+</Dialog>
+```
+
+---
+
+✅ Now all your auth flows are **consistent, reusable, testable, and scalable**.
+
+---
+
+
+
+
+Good question 👍
+
+In **enterprise / industry-level React apps**, the answer is: **it depends on the use case**, but there are some common patterns:
+
+---
+
+### 🔹 Skeletons vs. Spinners
+
+1. **Skeletons (preferred for content-heavy pages)**
+
+   * Used when the page has a lot of structured content (cards, lists, tables, forms).
+   * Makes the app *feel faster* because users see the layout instantly, and then data "fills in".
+   * Example: Facebook, LinkedIn, YouTube → all use skeletons for feeds or videos.
+
+   👉 Usually built with libraries like [shadcn/ui skeleton](https://ui.shadcn.com/docs/components/skeleton) or custom components.
+
+2. **Spinners (used for small or global states)**
+
+   * For quick, *short* loading states (e.g., submitting a form, fetching a small dataset).
+   * Often used as an **overlay spinner** for "blocking" actions.
+   * Example: When you click "Save" on a form, a spinner in the button or a small overlay is enough.
+
+   👉 Global loading spinners are rare for *full pages* nowadays (feels slower, less polished).
+
+---
+
+### 🔹 Common Industry Approach
+
+* **Skeletons for page-level content** → improves perceived performance.
+* **Button/inline spinners for actions** → e.g., inside a submit button.
+* **Global loader/spinner overlay** → reserved for rare cases like authentication check, route transition (initial app load).
+
+---
+
+### 🔹 Example in React
+
+```tsx
+// Skeleton for page
+import { Skeleton } from "@/components/ui/skeleton";
+
+function UsersSkeleton() {
+  return (
+    <div className="space-y-4">
+      <Skeleton className="h-10 w-3/4" />
+      <Skeleton className="h-10 w-1/2" />
+      <Skeleton className="h-10 w-full" />
+    </div>
+  );
+}
+```
+
+```tsx
+// Button with spinner
+import { Loader2 } from "lucide-react";
+
+function SubmitButton({ isLoading }: { isLoading: boolean }) {
+  return (
+    <button
+      disabled={isLoading}
+      className="flex items-center gap-2 rounded bg-blue-600 text-white px-4 py-2"
+    >
+      {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+      Submit
+    </button>
+  );
+}
+```
+
+---
+
+✅ **Summary**:
+
+* Enterprise apps usually **don’t rely only on one global spinner**.
+* They **mix skeletons, button spinners, and sometimes overlays** depending on context.
+* Skeletons are now the **industry standard** for full-page content loads.
+
+---
+
+Do you want me to show you how to structure a **centralized loading strategy** (like a `LoadingProvider` that handles skeletons vs spinners across the app)? That’s what many enterprise React apps use.
+
+
+
+
+
+
+
