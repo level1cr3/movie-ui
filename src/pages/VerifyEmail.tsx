@@ -1,56 +1,67 @@
+import FocusedPageContainer from "@/components/common/FocusedPageContainer";
+import Loader from "@/components/common/Loader";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import { useVerifyEmail } from "@/hooks/auth/useVerifyEmail";
+import { CheckCircle, TriangleAlertIcon } from "lucide-react";
 import { useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
-import { toast } from "sonner";
+import { Link, useSearchParams } from "react-router-dom";
 
 const VerifyEmail = () => {
   const [searchParams] = useSearchParams();
   const userId = searchParams.get("userId");
   const token = searchParams.get("token");
   const isValidParams = userId && token;
-  const { mutate: verifyEmail, isPending, isSuccess } = useVerifyEmail();
+  const {
+    mutate: verifyEmail,
+    isPending,
+    isSuccess,
+    isError,
+  } = useVerifyEmail();
 
   useEffect(() => {
     if (!isValidParams) return;
     const request = { userId, token };
-
-    verifyEmail(request, {
-      onSuccess: () => {
-        toast.success("Email verification successful");
-      },
-      onError: (error) => {
-        toast.error("Email verification failed");
-        const errMessages = error.response?.data.errors.map(
-          (err) => err.message
-        );
-
-        if (errMessages) {
-          errMessages.forEach((err) => {
-            toast.error(err);
-          });
-        }
-      },
-    });
+    verifyEmail(request);
   }, []);
 
-  if (!isValidParams) {
-    return <p>Invalid link</p>;
+  if (isPending) {
+    return <Loader message="Verifying your email..." />;
   }
 
-  if (isPending) {
-    return <p>Verifying your email...</p>;
+  if (!isValidParams || isError) {
+    return (
+      <FocusedPageContainer>
+        <Alert variant="destructive">
+          <TriangleAlertIcon />
+          <AlertTitle>
+            This verification link is invalid or has expired.
+          </AlertTitle>
+          <AlertDescription>
+            <Button variant="link">Resend verification email</Button>
+          </AlertDescription>
+        </Alert>
+      </FocusedPageContainer>
+    );
   }
 
   if (isSuccess) {
-    return <p>Email verified successfully </p>;
+    return (
+      <FocusedPageContainer>
+        <Alert variant="success">
+          <CheckCircle />
+          <AlertTitle>
+            Your email has been verified. You can now log in.
+          </AlertTitle>
+          <AlertDescription>
+            <Button variant="link">
+              <Link to="/login">Login</Link>
+            </Button>
+          </AlertDescription>
+        </Alert>
+      </FocusedPageContainer>
+    );
   }
-
-  return (
-    <div>
-      <p>Verification failed</p>
-      <p>resend link for email verification</p>
-    </div>
-  );
 };
 
 export default VerifyEmail;

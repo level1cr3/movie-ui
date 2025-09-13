@@ -1,5 +1,5 @@
 declare module "sonner" {
-  export * from "sonner/dist";
+  export { toast } from "sonner/dist";
 }
 
 /*
