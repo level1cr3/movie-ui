@@ -2,6 +2,7 @@ import api from "./apiClient";
 import type {
   RegisterRequest,
   VerifyEmailRequest,
+  ResendVerifyEmailRequest,
 } from "@/types/api/authTypes";
 
 export const register = async (newUser: RegisterRequest): Promise<void> => {
@@ -12,6 +13,12 @@ export const verifyEmail = async (
   verifyEmail: VerifyEmailRequest
 ): Promise<void> => {
   await api.post("/auth/confirm-email", verifyEmail);
+};
+
+export const resendVerifyEmail = async (
+  resendVerifyEmail: ResendVerifyEmailRequest
+): Promise<void> => {
+  await api.post("/auth/resend-confirm-email", resendVerifyEmail);
 };
 
 /*

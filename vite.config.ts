@@ -10,9 +10,9 @@ export default defineConfig({
   resolve: { alias: { "@": path.resolve(__dirname, "./src") } },
   server: {
     host: true,
-    https: {
-      key: fs.readFileSync("/certs/localhost+3-key.pem"),
-      cert: fs.readFileSync("/certs/localhost+3.pem"),
-    },
+    // https: {
+    //   key: fs.readFileSync("/certs/localhost+3-key.pem"),
+    //   cert: fs.readFileSync("/certs/localhost+3.pem"),
+    // },
   },
 });

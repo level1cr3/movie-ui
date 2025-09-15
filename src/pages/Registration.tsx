@@ -106,7 +106,7 @@ const Registration = () => {
             Enter your information to create an account
           </CardDescription>
           <CardAction>
-            <Button variant="link" size="sm">
+            <Button variant="link" size="sm" asChild>
               <Link to="/login">Login</Link>
             </Button>
           </CardAction>
@@ -225,7 +225,7 @@ const Registration = () => {
           <Button
             form="registrationForm"
             type="submit"
-            disabled={form.formState.isSubmitting}
+            disabled={form.formState.isSubmitting || isPending}
           >
             {form.formState.isSubmitting || isPending ? (
               <div>

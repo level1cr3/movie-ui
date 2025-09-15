@@ -1,3 +1,4 @@
+import ResendVerificationDialog from "@/components/auth/ResendVerificationDialog";
 import FocusedPageContainer from "@/components/common/FocusedPageContainer";
 import Loader from "@/components/common/Loader";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -38,7 +39,7 @@ const VerifyEmail = () => {
             This verification link is invalid or has expired.
           </AlertTitle>
           <AlertDescription>
-            <Button variant="link">Resend verification email</Button>
+            <ResendVerificationDialog triggerName="Resend verification email" />
           </AlertDescription>
         </Alert>
       </FocusedPageContainer>
@@ -54,7 +55,7 @@ const VerifyEmail = () => {
             Your email has been verified. You can now log in.
           </AlertTitle>
           <AlertDescription>
-            <Button variant="link">
+            <Button variant="link" asChild>
               <Link to="/login">Login</Link>
             </Button>
           </AlertDescription>

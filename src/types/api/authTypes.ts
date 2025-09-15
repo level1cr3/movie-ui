@@ -9,3 +9,7 @@ export type VerifyEmailRequest = {
   userId: string;
   token: string;
 };
+
+export type ResendVerifyEmailRequest = {
+  email: string;
+};
