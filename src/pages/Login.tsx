@@ -71,7 +71,7 @@ const Login = () => {
               Enter your credentials to login to your account
             </CardDescription>
             <CardAction>
-              <Button variant="link" size="sm">
+              <Button variant="link" size="sm" asChild>
                 <Link to="/register">Register</Link>
               </Button>
             </CardAction>
