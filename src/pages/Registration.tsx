@@ -228,7 +228,7 @@ const Registration = () => {
             disabled={form.formState.isSubmitting || isPending}
           >
             {form.formState.isSubmitting || isPending ? (
-              <div>
+              <div className="flex content-center items-center gap-2">
                 <LoaderCircleIcon className="animate-spin" />
                 Submitting...
               </div>

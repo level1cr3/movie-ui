@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useResendVerifyEmail } from "@/hooks/auth/useResendVerifyEmail";
 import { z } from "zod";
 import { resendVerifyEmailSchema } from "@/validations/resendVerifyEmailSchema";
-import { useForm } from "react-hook-form";
+import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
@@ -22,6 +22,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { LoaderCircleIcon } from "lucide-react";
+import type { ResendVerifyEmailRequest } from "@/types/api/authTypes";
+import { toast } from "sonner";
+import { useState } from "react";
 
 type Props = {
   triggerName: string;
@@ -30,6 +33,7 @@ type Props = {
 type FormFields = z.infer<typeof resendVerifyEmailSchema>;
 
 const ResendVerificationDialog = ({ triggerName }: Props) => {
+  const [open, setOpen] = useState(false);
   const form = useForm<FormFields>({
     defaultValues: { email: "" },
     resolver: zodResolver(resendVerifyEmailSchema),
@@ -38,8 +42,22 @@ const ResendVerificationDialog = ({ triggerName }: Props) => {
   const { mutateAsync: resendVerifyEmailAsync, isPending } =
     useResendVerifyEmail();
 
+  const onSubmit: SubmitHandler<FormFields> = async (data) => {
+    try {
+      const request: ResendVerifyEmailRequest = { email: data.email };
+      await resendVerifyEmailAsync(request);
+      toast.success(
+        "If this email is registered, a verification link has been sent"
+      );
+      form.reset();
+      setOpen(false);
+    } catch (error) {
+      toast.error("Something went wrong. Please try again later.");
+    }
+  };
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline">{triggerName}</Button>
       </DialogTrigger>
@@ -48,9 +66,11 @@ const ResendVerificationDialog = ({ triggerName }: Props) => {
           <DialogTitle>Enter your registered email</DialogTitle>
         </DialogHeader>
 
-        {/* put by form here with email field */}
         <Form {...form}>
-          <form id="resendVerifyEmailForm">
+          <form
+            id="resendVerifyEmailForm"
+            onSubmit={form.handleSubmit(onSubmit)}
+          >
             <FormField
               control={form.control}
               name="email"
@@ -60,7 +80,7 @@ const ResendVerificationDialog = ({ triggerName }: Props) => {
                   <FormControl>
                     <Input
                       type="email"
-                      placeholder="Enter your registerd email"
+                      placeholder="Enter your registered email"
                       {...field}
                     />
                   </FormControl>
@@ -71,14 +91,13 @@ const ResendVerificationDialog = ({ triggerName }: Props) => {
         </Form>
 
         <DialogFooter>
-          <DialogClose></DialogClose>
           <Button
             form="resendVerifyEmailForm"
             type="submit"
             disabled={form.formState.isSubmitting || isPending}
           >
             {form.formState.isSubmitting || isPending ? (
-              <div>
+              <div className="flex content-center items-center gap-2">
                 <LoaderCircleIcon className="animate-spin" />
                 Submitting...
               </div>
@@ -86,6 +105,9 @@ const ResendVerificationDialog = ({ triggerName }: Props) => {
               "Submit"
             )}
           </Button>
+          <DialogClose asChild>
+            <Button variant="outline">Close</Button>
+          </DialogClose>
         </DialogFooter>
       </DialogContent>
     </Dialog>
