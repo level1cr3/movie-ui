@@ -2,33 +2,20 @@ import { CircleAlertIcon, XIcon } from "lucide-react";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 
-type Props =
-  | {
-      title: string;
-      description: string;
-      dismissible?: false;
-      onClose?: never;
-    }
-  | {
-      title: string;
-      description: string;
-      dismissible: true;
-      onClose: () => void;
-    };
+type Props = {
+  title: string;
+  description: string;
+  onClose?: () => void;
+};
 
-const EmailVerificationAlert = ({
-  title,
-  description,
-  dismissible,
-  onClose,
-}: Props) => {
+const EmailVerificationAlert = ({ title, description, onClose }: Props) => {
   return (
     <Alert variant="info">
       <CircleAlertIcon />
       <AlertTitle>{title}</AlertTitle>
       <AlertDescription>{description}</AlertDescription>
 
-      {dismissible && (
+      {onClose && (
         <Button
           variant="ghost"
           size="icon"

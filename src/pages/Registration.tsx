@@ -30,11 +30,11 @@ import type { ApiError } from "@/types/api/commonTypes";
 import { toast } from "sonner";
 import { applyServerError } from "@/lib/applyServerErrors";
 import { useState } from "react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { CircleAlertIcon, LoaderCircleIcon, XIcon } from "lucide-react";
+import { LoaderCircleIcon } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import FocusedPageContainer from "@/components/common/FocusedPageContainer";
+import EmailVerificationAlert from "@/components/auth/EmailVerificationAlert";
 
 type FormFields = z.infer<typeof registrationSchema>;
 
@@ -80,23 +80,11 @@ const Registration = () => {
   return (
     <FocusedPageContainer>
       {isSubmittedSuccessfully && (
-        <Alert variant="info">
-          <CircleAlertIcon />
-          <AlertTitle>Verify your email to activate your account</AlertTitle>
-          <AlertDescription>
-            We&apos;ve sent a confirmation link to your inbox. Check your email
-            to complete the registration.
-          </AlertDescription>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setSubmittedSuccessfully(false)}
-            className="absolute right-0"
-          >
-            <XIcon />
-            <span className="sr-only">Close</span>
-          </Button>
-        </Alert>
+        <EmailVerificationAlert
+          title="Verify your email to activate your account"
+          description="We've sent a confirmation link to your inbox. Check your email to complete the registration."
+          onClose={() => setSubmittedSuccessfully(false)}
+        />
       )}
 
       <Card>
