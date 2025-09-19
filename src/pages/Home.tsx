@@ -4,7 +4,7 @@ const Home = () => {
   return (
     <div>
       Home
-      <ResendVerificationDialog triggerName="Resend verification email" />
+      <ResendVerificationDialog buttonText="Resend verification email" />
     </div>
   );
 };

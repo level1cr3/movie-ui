@@ -23,6 +23,9 @@ import {
 } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import FocusedPageContainer from "@/components/common/FocusedPageContainer";
+import { useState } from "react";
+import EmailActionAlert from "@/components/auth/EmailVerificationAlert";
+import ResendVerificationDialog from "@/components/auth/ResendVerificationDialog";
 
 const formSchema = z.object({
   email: z.email("Invalid email address"),
@@ -32,6 +35,8 @@ const formSchema = z.object({
 type FormFields = z.infer<typeof formSchema>;
 
 const Login = () => {
+  const [showResendNotification, setShowResendNotification] = useState(false);
+
   const form = useForm<FormFields>({
     defaultValues: {
       email: "",
@@ -63,6 +68,14 @@ const Login = () => {
 
   return (
     <>
+      {showResendNotification && (
+        <EmailActionAlert
+          title="Check your inbox"
+          description="If this email is registered, we've sent you a verification link."
+          onClose={() => setShowResendNotification(false)}
+        />
+      )}
+
       <FocusedPageContainer>
         <Card className="w-full max-w-md">
           <CardHeader>
@@ -106,7 +119,7 @@ const Login = () => {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel>Password</FormLabel>
                       <FormControl>
                         <Input
                           type="password"
@@ -128,14 +141,25 @@ const Login = () => {
               </form>
             </Form>
           </CardContent>
-          <CardFooter className="fex justify-center">
+          <CardFooter className="flex-col">
             <Button
               form="loginForm"
               type="submit"
               disabled={form.formState.isSubmitting}
+              className="w-full"
             >
               {form.formState.isSubmitting ? "Logging in..." : "Login"}
             </Button>
+
+            <div className="border-t w-full mt-3 pt-2 flex flex-col gap-0.5">
+              <Button variant="link" size="sm" asChild>
+                <Link to="/forgot-password">Forgot password?</Link>
+              </Button>
+              <ResendVerificationDialog
+                buttonText="Didn’t receive verification email?"
+                showSuccessAlert={() => setShowResendNotification(true)}
+              />
+            </div>
           </CardFooter>
         </Card>
       </FocusedPageContainer>

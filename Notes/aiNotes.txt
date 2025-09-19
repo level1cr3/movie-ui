@@ -1,0 +1,51 @@
+Perfect 👍 this is exactly the kind of thing that helps you use me more like a **senior teammate** instead of just a code auto-complete.
+
+Here’s a simple **checklist of questions** you can throw at me early in any feature discussion — these naturally push me to “zoom out” instead of just staying in code-land:
+
+---
+
+### 🧭 1. Problem clarity
+
+* *“Do I even need this feature, or is there a simpler flow?”*
+* *“What problem am I actually solving for the user here?”*
+* *“How do enterprise apps usually handle this?”*
+
+---
+
+### 🛠️ 2. Alternatives
+
+* *“Give me 3 ways to solve this, with pros/cons.”*
+* *“What would a pragmatic MVP solution look like vs. a fully polished one?”*
+* *“Can I reuse something I already built instead of creating new code?”*
+
+---
+
+### 🔄 3. User experience
+
+* *“From a UX perspective, is this flow confusing?”*
+* *“Should this message live here, or should we redirect the user somewhere else?”*
+* *“Would a user even expect this behavior in this context?”*
+
+---
+
+### 🏢 4. Real-world alignment
+
+* *“How do bigger/enterprise apps solve this exact situation?”*
+* *“What’s the most common or battle-tested pattern here?”*
+* *“What trade-offs (security, usability, maintainability) do I need to consider?”*
+
+---
+
+### 🧹 5. Code simplicity
+
+* *“Am I over-engineering this? Can I get rid of this abstraction?”*
+* *“Is it worth extracting this into a component, or just inline for now?”*
+* *“What’s the simplest thing that works here?”*
+
+---
+
+👉 If you sprinkle even **one or two of these questions** at the start of a problem, I’ll naturally shift into “big-picture” reasoning instead of just fixing line-by-line.
+
+---
+
+Do you want me to make you a **short one-page PDF** with this checklist formatted nicely (like a dev cheat sheet you can keep open while working)?

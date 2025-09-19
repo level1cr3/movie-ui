@@ -27,12 +27,13 @@ import { toast } from "sonner";
 import { useState } from "react";
 
 type Props = {
-  triggerName: string;
+  buttonText: string;
+  showSuccessAlert: () => void;
 };
 
 type FormFields = z.infer<typeof resendVerifyEmailSchema>;
 
-const ResendVerificationDialog = ({ triggerName }: Props) => {
+const ResendVerificationDialog = ({ buttonText, showSuccessAlert }: Props) => {
   const [open, setOpen] = useState(false);
   const form = useForm<FormFields>({
     defaultValues: { email: "" },
@@ -51,6 +52,7 @@ const ResendVerificationDialog = ({ triggerName }: Props) => {
       );
       form.reset();
       setOpen(false);
+      showSuccessAlert();
     } catch (error) {
       toast.error("Something went wrong. Please try again later.");
     }
@@ -59,7 +61,7 @@ const ResendVerificationDialog = ({ triggerName }: Props) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">{triggerName}</Button>
+        <Button variant="link">{buttonText}</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

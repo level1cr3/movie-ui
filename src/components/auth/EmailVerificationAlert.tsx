@@ -5,32 +5,29 @@ import { Button } from "@/components/ui/button";
 type Props = {
   title: string;
   description: string;
-  onClose?: () => void;
+  onClose: () => void;
 };
 
-const EmailVerificationAlert = ({ title, description, onClose }: Props) => {
+const EmailActionAlert = ({ title, description, onClose }: Props) => {
   return (
     <Alert variant="info">
       <CircleAlertIcon />
       <AlertTitle>{title}</AlertTitle>
       <AlertDescription>{description}</AlertDescription>
-
-      {onClose && (
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onClose}
-          className="absolute right-0"
-        >
-          <XIcon />
-          <span className="sr-only">Close</span>
-        </Button>
-      )}
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={onClose}
+        className="absolute right-0"
+      >
+        <XIcon />
+        <span className="sr-only">Close</span>
+      </Button>
     </Alert>
   );
 };
 
-export default EmailVerificationAlert;
+export default EmailActionAlert;
 
 /*
 

@@ -34,7 +34,7 @@ import { LoaderCircleIcon } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import FocusedPageContainer from "@/components/common/FocusedPageContainer";
-import EmailVerificationAlert from "@/components/auth/EmailVerificationAlert";
+import EmailActionAlert from "@/components/auth/EmailVerificationAlert";
 
 type FormFields = z.infer<typeof registrationSchema>;
 
@@ -80,7 +80,7 @@ const Registration = () => {
   return (
     <FocusedPageContainer>
       {isSubmittedSuccessfully && (
-        <EmailVerificationAlert
+        <EmailActionAlert
           title="Verify your email to activate your account"
           description="We've sent a confirmation link to your inbox. Check your email to complete the registration."
           onClose={() => setSubmittedSuccessfully(false)}
