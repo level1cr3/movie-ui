@@ -24,7 +24,7 @@ import {
 import { Link } from "react-router-dom";
 import FocusedPageContainer from "@/components/common/FocusedPageContainer";
 import { useState } from "react";
-import EmailActionAlert from "@/components/auth/EmailVerificationAlert";
+import EmailActionAlert from "@/components/auth/EmailActionAlert";
 import ResendVerificationDialog from "@/components/auth/ResendVerificationDialog";
 
 const formSchema = z.object({
@@ -34,8 +34,10 @@ const formSchema = z.object({
 
 type FormFields = z.infer<typeof formSchema>;
 
+type EmailActionType = "emailVerification" | "resetPassword" | null;
+
 const Login = () => {
-  const [showResendNotification, setShowResendNotification] = useState(false);
+  const [emailAction, setEmailAction] = useState<EmailActionType>(null);
 
   const form = useForm<FormFields>({
     defaultValues: {
@@ -68,11 +70,15 @@ const Login = () => {
 
   return (
     <>
-      {showResendNotification && (
+      {emailAction && (
         <EmailActionAlert
           title="Check your inbox"
-          description="If this email is registered, we've sent you a verification link."
-          onClose={() => setShowResendNotification(false)}
+          description={`If this email is registered, we've sent you a ${
+            emailAction === "emailVerification"
+              ? "verification"
+              : "password reset"
+          } link.`}
+          onClose={() => setEmailAction(null)}
         />
       )}
 
@@ -157,7 +163,7 @@ const Login = () => {
               </Button>
               <ResendVerificationDialog
                 buttonText="Didn’t receive verification email?"
-                showSuccessAlert={() => setShowResendNotification(true)}
+                showSuccessAlert={() => setEmailAction("emailVerification")}
               />
             </div>
           </CardFooter>

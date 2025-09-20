@@ -34,7 +34,7 @@ import { LoaderCircleIcon } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import FocusedPageContainer from "@/components/common/FocusedPageContainer";
-import EmailActionAlert from "@/components/auth/EmailVerificationAlert";
+import EmailActionAlert from "@/components/auth/EmailActionAlert";
 
 type FormFields = z.infer<typeof registrationSchema>;
 
