@@ -70,17 +70,19 @@ const Login = () => {
 
   return (
     <>
-      {emailAction && (
-        <EmailActionAlert
-          title="Check your inbox"
-          description={`If this email is registered, we've sent you a ${
+      {emailAction &&
+        (() => {
+          const linkType =
             emailAction === "emailVerification"
               ? "verification"
-              : "password reset"
-          } link.`}
-          onClose={() => setEmailAction(null)}
-        />
-      )}
+              : "password reset";
+
+          <EmailActionAlert
+            title="Check your inbox"
+            description={`If this email is registered, we've sent you a ${linkType} link.`}
+            onClose={() => setEmailAction(null)}
+          />;
+        })()}
 
       <FocusedPageContainer>
         <Card className="w-full max-w-md">
