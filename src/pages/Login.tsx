@@ -38,6 +38,9 @@ type EmailActionType = "emailVerification" | "resetPassword" | null;
 
 const Login = () => {
   const [emailAction, setEmailAction] = useState<EmailActionType>(null);
+  const getLinkType = (action: Exclude<EmailActionType, null>) => {
+    return action === "emailVerification" ? "verification" : "password reset";
+  };
 
   const form = useForm<FormFields>({
     defaultValues: {
@@ -70,19 +73,15 @@ const Login = () => {
 
   return (
     <>
-      {emailAction &&
-        (() => {
-          const linkType =
-            emailAction === "emailVerification"
-              ? "verification"
-              : "password reset";
-
-          <EmailActionAlert
-            title="Check your inbox"
-            description={`If this email is registered, we've sent you a ${linkType} link.`}
-            onClose={() => setEmailAction(null)}
-          />;
-        })()}
+      {emailAction && (
+        <EmailActionAlert
+          title="Check your inbox"
+          description={`If this email is registered, we've sent you a ${getLinkType(
+            emailAction
+          )} link.`}
+          onClose={() => setEmailAction(null)}
+        />
+      )}
 
       <FocusedPageContainer>
         <Card className="w-full max-w-md">
