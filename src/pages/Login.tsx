@@ -27,6 +27,7 @@ import { useState } from "react";
 import EmailActionAlert from "@/components/auth/EmailActionAlert";
 import ResendVerificationDialog from "@/components/auth/ResendVerificationDialog";
 import ForgotPasswordDialog from "@/components/auth/ForgotPasswordDialog";
+import { useBearStore } from "@/stores/counterStore";
 
 const formSchema = z.object({
   email: z.email("Invalid email address"),
@@ -38,6 +39,7 @@ type FormFields = z.infer<typeof formSchema>;
 type EmailActionType = "emailVerification" | "forgotPassword" | null;
 
 const Login = () => {
+  const bears = useBearStore((state) => state.bears);
   const [emailAction, setEmailAction] = useState<EmailActionType>(null);
   const getLinkType = (action: Exclude<EmailActionType, null>) => {
     return action === "emailVerification" ? "verification" : "password reset";
@@ -75,6 +77,7 @@ const Login = () => {
   return (
     <>
       <FocusedPageContainer>
+        <h1>bears count: {bears}</h1>
         {emailAction && (
           <EmailActionAlert
             title="Check your inbox"
