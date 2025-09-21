@@ -26,6 +26,7 @@ import FocusedPageContainer from "@/components/common/FocusedPageContainer";
 import { useState } from "react";
 import EmailActionAlert from "@/components/auth/EmailActionAlert";
 import ResendVerificationDialog from "@/components/auth/ResendVerificationDialog";
+import ForgotPasswordDialog from "@/components/auth/ForgotPasswordDialog";
 
 const formSchema = z.object({
   email: z.email("Invalid email address"),
@@ -34,7 +35,7 @@ const formSchema = z.object({
 
 type FormFields = z.infer<typeof formSchema>;
 
-type EmailActionType = "emailVerification" | "resetPassword" | null;
+type EmailActionType = "emailVerification" | "forgotPassword" | null;
 
 const Login = () => {
   const [emailAction, setEmailAction] = useState<EmailActionType>(null);
@@ -73,18 +74,17 @@ const Login = () => {
 
   return (
     <>
-      {emailAction && (
-        <EmailActionAlert
-          title="Check your inbox"
-          description={`If this email is registered, we've sent you a ${getLinkType(
-            emailAction
-          )} link.`}
-          onClose={() => setEmailAction(null)}
-        />
-      )}
-
       <FocusedPageContainer>
-        <Card className="w-full max-w-md">
+        {emailAction && (
+          <EmailActionAlert
+            title="Check your inbox"
+            description={`If this email is registered, we've sent you a ${getLinkType(
+              emailAction
+            )} link.`}
+            onClose={() => setEmailAction(null)}
+          />
+        )}
+        <Card>
           <CardHeader>
             <CardTitle>Login to your account</CardTitle>
             <CardDescription>
@@ -159,11 +159,10 @@ const Login = () => {
             </Button>
 
             <div className="border-t w-full mt-3 pt-2 flex flex-col gap-0.5">
-              <Button variant="link" size="sm" asChild>
-                <Link to="/forgot-password">Forgot password?</Link>
-              </Button>
+              <ForgotPasswordDialog
+                showSuccessAlert={() => setEmailAction("forgotPassword")}
+              />
               <ResendVerificationDialog
-                buttonText="Didn’t receive verification email?"
                 showSuccessAlert={() => setEmailAction("emailVerification")}
               />
             </div>

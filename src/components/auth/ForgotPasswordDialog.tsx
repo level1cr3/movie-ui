@@ -8,7 +8,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useResendVerifyEmail } from "@/hooks/auth/useResendVerifyEmail";
 import { z } from "zod";
 import { emailSchema } from "@/validations/resendVerifyEmailSchema";
 import { useForm, type SubmitHandler } from "react-hook-form";
@@ -25,6 +24,7 @@ import { LoaderCircleIcon } from "lucide-react";
 import type { ResendVerifyEmailRequest } from "@/types/api/authTypes";
 import { toast } from "sonner";
 import { useState } from "react";
+import { useForgotPassword } from "@/hooks/auth/useForgotPassword";
 
 type Props = {
   showSuccessAlert: () => void;
@@ -32,22 +32,21 @@ type Props = {
 
 type FormFields = z.infer<typeof emailSchema>;
 
-const ResendVerificationDialog = ({ showSuccessAlert }: Props) => {
+const ForgotPasswordDialog = ({ showSuccessAlert }: Props) => {
   const [open, setOpen] = useState(false);
   const form = useForm<FormFields>({
     defaultValues: { email: "" },
     resolver: zodResolver(emailSchema),
   });
 
-  const { mutateAsync: resendVerifyEmailAsync, isPending } =
-    useResendVerifyEmail();
+  const { mutateAsync: forgotPasswordAsync, isPending } = useForgotPassword();
 
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
     try {
       const request: ResendVerifyEmailRequest = { email: data.email };
-      await resendVerifyEmailAsync(request);
+      await forgotPasswordAsync(request);
       toast.success(
-        "If this email is registered, a verification link has been sent"
+        "If this email is registered, a password reset link has been sent"
       );
       form.reset();
       setOpen(false);
@@ -60,18 +59,15 @@ const ResendVerificationDialog = ({ showSuccessAlert }: Props) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="link">Didn’t receive verification email?</Button>
+        <Button variant="link">Forgot password?</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Resend Verification Email</DialogTitle>
+          <DialogTitle>Request Password Reset Link</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
-          <form
-            id="resendVerifyEmailForm"
-            onSubmit={form.handleSubmit(onSubmit)}
-          >
+          <form id="forgotPasswordForm" onSubmit={form.handleSubmit(onSubmit)}>
             <FormField
               control={form.control}
               name="email"
@@ -93,7 +89,7 @@ const ResendVerificationDialog = ({ showSuccessAlert }: Props) => {
 
         <DialogFooter>
           <Button
-            form="resendVerifyEmailForm"
+            form="forgotPasswordForm"
             type="submit"
             disabled={form.formState.isSubmitting || isPending}
           >
@@ -115,48 +111,4 @@ const ResendVerificationDialog = ({ showSuccessAlert }: Props) => {
   );
 };
 
-export default ResendVerificationDialog;
-
-/*
-
-Why we use aschild prop in shadcn ui ?
-
-Say you want a shadcn Button but it should behave like a react-router-dom <Link>.
-
-Without asChild, you’d nest them → ugly and not semantic:
-
-<Button>
-  <Link to="/dashboard">Dashboard</Link>
-</Button>
-
-
-This renders:
-
-<button>
-  <a href="/dashboard">Dashboard</a>
-</button>
-
-
-⚠️ Invalid HTML (button inside link).
-
-With asChild:
-
-<Button asChild>
-  <Link to="/dashboard">Dashboard</Link>
-</Button>
-
-
-This renders:
-
-<a href="/dashboard" class="btn-classes">Dashboard</a>
-
-
-✅ No extra wrapper, styling from Button is applied directly to <Link>.
-
-⚡ Rule of thumb
-
-If the component renders something interactive by default (like button, a, div with role), and you want to replace that with your own component → use asChild.
-
-If the component is just a layout wrapper (CardContent, CardHeader, Form, Separator, etc.), then you usually don’t need asChild.
-
-*/
+export default ForgotPasswordDialog;

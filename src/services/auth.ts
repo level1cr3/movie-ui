@@ -3,6 +3,7 @@ import type {
   RegisterRequest,
   VerifyEmailRequest,
   ResendVerifyEmailRequest,
+  ForgotPasswordRequest,
 } from "@/types/api/authTypes";
 
 export const register = async (newUser: RegisterRequest): Promise<void> => {
@@ -19,6 +20,12 @@ export const resendVerifyEmail = async (
   resendVerifyEmail: ResendVerifyEmailRequest
 ): Promise<void> => {
   await api.post("/auth/resend-confirm-email", resendVerifyEmail);
+};
+
+export const forgotPassword = async (
+  forgotPassword: ForgotPasswordRequest
+): Promise<void> => {
+  await api.post("/auth/forgot-password", forgotPassword);
 };
 
 /*

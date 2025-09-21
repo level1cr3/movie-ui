@@ -13,3 +13,14 @@ export type VerifyEmailRequest = {
 export type ResendVerifyEmailRequest = {
   email: string;
 };
+
+export type ForgotPasswordRequest = {
+  email: string;
+};
+
+/*
+hey represent different intentions in your API:
+ResendVerifyEmailRequest → tied to account verification flow.
+ForgotPasswordRequest → tied to password recovery flow.
+
+*/
