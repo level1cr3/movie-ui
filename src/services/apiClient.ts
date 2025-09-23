@@ -1,9 +1,16 @@
 import { useAuthStore } from "@/stores/authStore";
-import axios from "axios";
+import axios, {
+  type CreateAxiosDefaults,
+  type InternalAxiosRequestConfig,
+} from "axios";
+
+const axiosDefaults: CreateAxiosDefaults = {
+  baseURL: "https://localhost:7145/api",
+  timeout: 10000, // 10s seconds default.
+};
 
 const refreshApi = axios.create({
-  baseURL: "https://localhost:7145/api",
-  timeout: 10000,
+  ...axiosDefaults,
   withCredentials: true,
   // withCredentials true to send refresh token from httpOnly cookie
 });
@@ -23,12 +30,13 @@ Even if your refresh endpoint never returns `401`, it’s still **best practice*
 * If you later secure refresh (e.g. with IP checks, device checks), you won’t need to refactor everything.
 So yes → use a small `refreshApi` just for `/auth/refresh-token`, and keep your main `api` clean.
 
+Avoid interceptor recursion completely:
+Your main api instance has the response interceptor.
+The refresh call should not trigger the same interceptor, otherwise even with the guard, you’re adding unnecessary logic paths and risk subtle bugs.
+
 */
 
-const api = axios.create({
-  baseURL: "https://localhost:7145/api",
-  timeout: 10000, // 10s seconds default.
-}); // this create method gives me axios Instance
+const api = axios.create(axiosDefaults); // this create method gives me axios Instance
 
 // Example of overriding for a long-running request
 // axiosInstance.get("/big-report", { timeout: 30000 });
@@ -42,22 +50,59 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+let isRefreshing = false;
+type RefreshSubscriber = (token: string) => void;
+let refreshSubscribers: RefreshSubscriber[] = [];
+// a page might have many api calls and these api calls can fail simultaneously when token expires. so they all will hit the response interceptor as well.
+// so we want to queue these request. let one resolve and get the refresh token. this is array of functions.
+
+function onRefreshed(token: string) {
+  refreshSubscribers.forEach((cb) => cb(token)); // this runs all the queued callbacks resolving their promises with new Token.
+  refreshSubscribers = []; // then reset. It is important.
+}
+
 // response interceptor (eg : error handling, refresh token etc)
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const originalRequest = error.config;
+    if (axios.isAxiosError(error) && error.config) {
+      const originalRequest = error.config as InternalAxiosRequestConfig & {
+        _retry?: boolean;
+      };
 
-    if (axios.isAxiosError(error) && error.response?.status === 401) {
-      // handle refresh token or redirect to login
-      // console.log("Unauthorized! Redirecting to login...");
+      if (
+        originalRequest.url?.includes("/auth/refresh-token") ||
+        originalRequest._retry
+      ) {
+        return Promise.reject(error);
+      }
 
-      try {
-        const res = await refreshApi.post("/auth/refresh-token");
-        useAuthStore.getState().setAccessToken(res.data);
-      } catch (refreshErr) {
-        useAuthStore.getState().clearAuth();
-        return Promise.reject(refreshErr);
+      if (isRefreshing) {
+        // queue until refresh done.
+        return new Promise((resolve) => {
+          refreshSubscribers.push((token) => {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            resolve(api(originalRequest));
+          });
+        });
+      }
+
+      if (error.response?.status === 401) {
+        originalRequest._retry = true;
+        isRefreshing = true; // queueing other request fails. till below refresh-token request has been resolved
+        try {
+          const res = await refreshApi.post("/auth/refresh-token");
+          const newToken = res.data.accessToken;
+          useAuthStore.getState().setAccessToken(newToken);
+          onRefreshed(newToken);
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          return api(originalRequest);
+        } catch (refreshErr) {
+          useAuthStore.getState().clearAuth(); // we will trigger navigation to login. from the consumer of this api not here.
+          return Promise.reject(refreshErr);
+        } finally {
+          isRefreshing = false;
+        }
       }
     }
 
@@ -116,6 +161,23 @@ For this to work correctly:
 
 ---
 
-Do you want me to also show you **how to configure CORS and cookies correctly** in ASP.NET Core for this to work in an enterprise setup?
+
+2️⃣ Why _retry exists even with the refresh endpoint check
+
+You asked:
+
+Retry original request → it fails again with 401. Why would this happen if we just refreshed the token?
+
+Ideally, if refresh is successful, the retry should never fail with 401.
+
+But in reality, race conditions or misconfigured tokens can happen:
+
+Two requests trigger refresh at almost the same time.
+
+One request updates the token; the other tries with an old token (if not queued properly).
+
+Network issues or server bugs may cause a retry to still return 401.
+
+_retry is a safety net to prevent infinite loops even in those edge cases.
 
 */
