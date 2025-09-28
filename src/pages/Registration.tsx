@@ -35,6 +35,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import FocusedPageContainer from "@/components/common/FocusedPageContainer";
 import EmailActionAlert from "@/components/auth/EmailActionAlert";
+import FormSubmissionButton from "@/components/common/FormSubmissionButton";
 
 type FormFields = z.infer<typeof registrationSchema>;
 
@@ -210,20 +211,12 @@ const Registration = () => {
               )}
             </ul>
           )}
-          <Button
-            form="registrationForm"
-            type="submit"
-            disabled={form.formState.isSubmitting || isPending}
+          <FormSubmissionButton
+            formId="registrationForm"
+            isSubmitting={form.formState.isSubmitting || isPending}
           >
-            {form.formState.isSubmitting || isPending ? (
-              <div className="flex content-center items-center gap-2">
-                <LoaderCircleIcon className="animate-spin" />
-                Submitting...
-              </div>
-            ) : (
-              "Submit"
-            )}
-          </Button>
+            Submit
+          </FormSubmissionButton>
         </CardFooter>
       </Card>
     </FocusedPageContainer>
