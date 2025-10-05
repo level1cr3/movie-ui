@@ -27,19 +27,21 @@ import { useState } from "react";
 import EmailActionAlert from "@/components/auth/EmailActionAlert";
 import ResendVerificationDialog from "@/components/auth/ResendVerificationDialog";
 import ForgotPasswordDialog from "@/components/auth/ForgotPasswordDialog";
-import { useBearStore } from "@/stores/counterStore";
+import { loginSchema } from "@/validations/loginSchema";
+import { useLogin } from "@/hooks/auth/useLogin";
+import FormSubmissionButton from "@/components/common/FormSubmissionButton";
+import type { LoginRequest } from "@/types/api/authTypes";
+import { useAuthStore } from "@/stores/authStore";
+import { toast } from "sonner";
+import axios from "axios";
+import type { ApiError } from "@/types/api/commonTypes";
+import { applyServerError } from "@/lib/applyServerErrors";
 
-const formSchema = z.object({
-  email: z.email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-});
-
-type FormFields = z.infer<typeof formSchema>;
+type FormFields = z.infer<typeof loginSchema>;
 
 type EmailActionType = "emailVerification" | "forgotPassword" | null;
 
 const Login = () => {
-  const bears = useBearStore((state) => state.bears);
   const [emailAction, setEmailAction] = useState<EmailActionType>(null);
   const getLinkType = (action: Exclude<EmailActionType, null>) => {
     return action === "emailVerification" ? "verification" : "password reset";
@@ -50,26 +52,27 @@ const Login = () => {
       email: "",
       password: "",
     },
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(loginSchema),
   });
+
+  const { mutateAsync: loginAsync, isPending } = useLogin();
+  const { setAuth } = useAuthStore((state) => state.actions);
 
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
     try {
-      const response = await fetch("https://localhost:7145/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        console.log(result);
-      }
+      const request: LoginRequest = {
+        email: data.email,
+        password: data.password,
+      };
+      const response = await loginAsync(request);
+      console.log(response);
+      setAuth(response.token.accessToken, response.user);
     } catch (error) {
-      if (error instanceof Error) {
-        form.setError("root", { message: error.message });
+      toast.error("Login failed");
+      if (axios.isAxiosError<ApiError>(error) && error.response?.data.errors) {
+        applyServerError(form.setError, error.response.data.errors);
+      } else {
+        console.error(error);
       }
     }
   };
@@ -77,7 +80,6 @@ const Login = () => {
   return (
     <>
       <FocusedPageContainer>
-        <h1>bears count: {bears}</h1>
         {emailAction && (
           <EmailActionAlert
             title="Check your inbox"
@@ -152,14 +154,14 @@ const Login = () => {
             </Form>
           </CardContent>
           <CardFooter className="flex-col">
-            <Button
-              form="loginForm"
-              type="submit"
-              disabled={form.formState.isSubmitting}
+            <FormSubmissionButton
+              formId="loginForm"
               className="w-full"
+              isSubmitting={form.formState.isSubmitting || isPending}
+              submittingText="Logging in..."
             >
-              {form.formState.isSubmitting ? "Logging in..." : "Login"}
-            </Button>
+              Login
+            </FormSubmissionButton>
 
             <div className="border-t w-full mt-3 pt-2 flex flex-col gap-0.5">
               <ForgotPasswordDialog
@@ -182,4 +184,10 @@ export default Login;
 # Do you have to give defaultValues?
 > Not always required — if your form is strictly for new data entry (like login, registration), React Hook Form can work without defaults.
 > But recommended — because React Hook Form keeps all inputs controlled. Without defaultValues, inputs may start as undefined, which can cause warnings or unexpected behavior.
+
+
+
+> In react if you have Expensive component that you don't want to re-render very time something changes in consumer component that doesn't effect it.
+> we should pass this expensive component as children. that will solve the issue.
+
 */

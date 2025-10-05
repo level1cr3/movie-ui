@@ -90,15 +90,16 @@ api.interceptors.response.use(
       if (error.response?.status === 401) {
         originalRequest._retry = true;
         isRefreshing = true; // queueing other request fails. till below refresh-token request has been resolved
+        const { setAuth, clearAuth } = useAuthStore.getState().actions;
         try {
           const res = await refreshApi.post("/auth/refresh-token");
           const newToken = res.data.accessToken;
-          useAuthStore.getState().setAccessToken(newToken);
+          setAuth(newToken);
           onRefreshed(newToken);
           originalRequest.headers.Authorization = `Bearer ${newToken}`;
           return api(originalRequest);
         } catch (refreshErr) {
-          useAuthStore.getState().clearAuth(); // we will trigger navigation to login. from the consumer of this api not here.
+          clearAuth(); // we will trigger navigation to login. from the consumer of this api not here.
           return Promise.reject(refreshErr);
         } finally {
           isRefreshing = false;

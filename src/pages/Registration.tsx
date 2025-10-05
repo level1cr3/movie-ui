@@ -30,7 +30,6 @@ import type { ApiError } from "@/types/api/commonTypes";
 import { toast } from "sonner";
 import { applyServerError } from "@/lib/applyServerErrors";
 import { useState } from "react";
-import { LoaderCircleIcon } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import FocusedPageContainer from "@/components/common/FocusedPageContainer";
